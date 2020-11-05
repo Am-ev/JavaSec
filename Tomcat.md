@@ -19,3 +19,30 @@ Tomcat实现隔离的方式是，每个Webapp拥有独立的ClassLoader实例，
 如果在应用程序的全局范围内都没有设置类加载器的情况下，**那么该上下文类加载器默认就是应用程序的类加载器**。
 对于Tomcat来说，ContextClassLoader被设置为WebAppClassLoader(在一些框架中可能是继承了Public abstract WebappClassLoaderBase的其他加载器)。
 
+
+
+### Tomat组件间的联系
+
+一个Server可启动多个Service，其中Service可由多个Connector与Engine包装而成。
+Connector含有三个部分：
+    Endpoint负责处理网络请求，读取字节码。
+    Processor负责完成应用层的协议解析，如HTTP/1.1或AJP/1.3。
+    Adaptor负责将解析后的Tomcat Request/Response对象转化为Servlet Request/Response对象。
+
+而后，交由Container进行处理：Container可拥有多个Host：
+    Host代表不同的虚拟主机，可承担处理多个域名的服务
+    在Host中，Context代表不同的应用，与应用的/WEB-INF/web.xml相对应
+    在Context中，不同的Wrapper代表不同的Servlet。
+    
+ 
+ ### 创建Context方式
+ 
+ 1.通过在appbase(默认为webapps)中新建目录完成
+ 2.通过Server.xml，增添Context元素创建
+ 
+ 
+ ### 控制回显
+ （寻找request、response对象、当前运行的代码与Tomcat上下文环境之间的关系）https://zhuanlan.zhihu.com/p/114625962
+ WebappClassLoaderBase -->  StandardServer --> StandardService --> ApplicationContext --> Connectors --> AbstractProtocol$connector --> RequestGroupInfo --> req --> response
+ 
+ 
