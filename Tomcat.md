@@ -43,6 +43,6 @@ Connector含有三个部分：
  
  ### 控制回显
  （寻找request、response对象、当前运行的代码与Tomcat上下文环境之间的关系）https://zhuanlan.zhihu.com/p/114625962
- WebappClassLoaderBase -->  StandardServer --> StandardService --> ApplicationContext --> Connectors --> AbstractProtocol$connector --> RequestGroupInfo --> req --> response
+WebappClassLoaderBase --> (resources属性) StandardRoot --> (context属性) TomcatEmbeddedContext --> (context属性) ApplicationContext --> (service属性) StandardService --> Connectors --> ProtocolHandler --> (Handler 属性) AbstractProtocol$connector --> (global属性) RequestGroupInfo --> Processors --> processor --> (req 属性)Request --> response
  
  
