@@ -18,6 +18,6 @@
     for( AccessLog log:logs ){
     	((AbstractAccessLogValve)log).setCondition("WhatEverYouWant");//任意填入
 	}
-	request.setAttribute("WhatEverYouWant", "WhatEverYouWant");
+    request.setAttribute("WhatEverYouWant", "WhatEverYouWant");
 %>
 
